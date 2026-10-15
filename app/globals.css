@@ -1,0 +1,338 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * Design tokens.
+ * Dark is "the board": matte black solder mask, quartz silkscreen type.
+ * Light is "the datasheet": cool quartz paper, ink type, a ruled grid.
+ * One accent (ultramarine) per theme; status colors are separate and always
+ * paired with a text label.
+ */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0c0d0e;
+  --bg-raised: #131416;
+  --bg-sunken: #08090a;
+  --line: #222428;
+  --line-strong: #34373c;
+  --text: #e8e7e3;
+  --text-muted: #8f9095;
+  --text-faint: #5c5e63;
+  --accent: #8b9dff;
+  --accent-ink: #0c0d0e;
+  --status-online: #3ecf7a;
+  --status-idle: #f0b54a;
+  --status-dnd: #f2605c;
+  --status-offline: #6f7278;
+  --texture: radial-gradient(circle at center, #202226 1.1px, transparent 1.7px);
+  --texture-size: 20px 20px;
+  --panel-shadow: 0 1px 0 rgb(255 255 255 / 0.035) inset, 0 24px 48px -28px rgb(0 0 0 / 0.8);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #ebebe8;
+  --bg-raised: #f7f7f5;
+  --bg-sunken: #e1e1dd;
+  --line: #d0d0cb;
+  --line-strong: #adada7;
+  --text: #121315;
+  --text-muted: #55575c;
+  --text-faint: #8e9094;
+  --accent: #2f45d9;
+  --accent-ink: #f7f7f5;
+  --status-online: #1b8f4b;
+  --status-idle: #a86b0a;
+  --status-dnd: #cf3434;
+  --status-offline: #85878c;
+  --texture:
+    linear-gradient(to right, rgb(18 19 21 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(18 19 21 / 0.06) 1px, transparent 1px);
+  --texture-size: 24px 24px;
+  --panel-shadow: 0 1px 0 rgb(255 255 255 / 0.8) inset, 0 20px 40px -30px rgb(18 19 21 / 0.45);
+}
+
+:root {
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --header-h: 3.25rem;
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 520ms;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-raised: var(--bg-raised);
+  --color-sunken: var(--bg-sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--text);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-martian), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --ease-out: var(--ease-out);
+}
+
+/* Archivo's width axis is the site's signature: names widen, links stretch. */
+@utility stretch-condensed {
+  font-variation-settings: "wdth" 75;
+}
+@utility stretch-normal {
+  font-variation-settings: "wdth" 100;
+}
+@utility stretch-wide {
+  font-variation-settings: "wdth" 112;
+}
+@utility stretch-expanded {
+  font-variation-settings: "wdth" 125;
+}
+
+/* Small technical text: timestamps, counts, labels. */
+@utility meta {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.55;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility container-page {
+  width: 100%;
+  max-width: 82rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--text);
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-h) + 1rem);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-variation-settings: "wdth" 100;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--accent) 38%, transparent);
+    color: var(--text);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+/* Inline text links: thin underline that thickens and takes the accent. */
+.text-link {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: var(--line-strong);
+  transition:
+    text-decoration-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+.text-link:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+/* Things that widen on hover are always clickable. */
+.stretch-on-hover {
+  font-variation-settings: "wdth" 100;
+  transition: font-variation-settings var(--dur-base) var(--ease-out), color var(--dur-fast) ease;
+}
+.group:focus-visible .stretch-on-hover,
+a.stretch-on-hover:focus-visible {
+  font-variation-settings: "wdth" 125;
+}
+/* Only where hover is real, so a tap on a touch screen doesn't leave text stuck wide. */
+@media (hover: hover) {
+  .group:hover .stretch-on-hover,
+  a.stretch-on-hover:hover {
+    font-variation-settings: "wdth" 125;
+  }
+}
+
+/* Perfboard dots (dark) or ruled grid (light) behind the hero. */
+.surface-texture {
+  background-image: var(--texture);
+  background-size: var(--texture-size);
+  background-position: center top;
+  mask-image: linear-gradient(to bottom, black 40%, transparent);
+}
+
+.panel {
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-shadow);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  flex: none;
+  background: var(--dot, var(--status-offline));
+}
+.status-dot[data-status="online"] { --dot: var(--status-online); }
+.status-dot[data-status="idle"] { --dot: var(--status-idle); }
+.status-dot[data-status="dnd"] { --dot: var(--status-dnd); }
+.status-dot[data-status="offline"] { --dot: var(--status-offline); }
+.status-dot[data-status="unknown"] {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--text-faint);
+}
+.status-dot[data-live="true"] {
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--dot) 60%, transparent);
+  animation: pulse 2.4s var(--ease-out) 3;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--dot) 55%, transparent); }
+  100% { box-shadow: 0 0 0 7px color-mix(in oklab, var(--dot) 0%, transparent); }
+}
+
+/* Loading placeholder for asynchronous content with reserved space. */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-sunken), var(--line), var(--bg-sunken));
+  background-size: 200% 100%;
+  border-radius: 3px;
+  animation: shimmer 1.6s linear infinite;
+}
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
+/* The page-load moment: the name stretches open, then everything else fades in. */
+/* Transform-only, so the load animation never triggers layout. */
+@keyframes letter-open {
+  from {
+    transform: scaleX(0.35);
+    opacity: 0;
+  }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+.intro-fade {
+  animation: fade-in 700ms var(--ease-out) backwards;
+  animation-delay: var(--delay, 450ms);
+}
+
+/* The name. Sized against its container so it always spans the full width. */
+.name-area {
+  container-type: inline-size;
+  /* Guards against overflow while the fallback font is showing. */
+  overflow-x: clip;
+  overflow-clip-margin: 0.5rem;
+}
+.name-mark {
+  margin: 0;
+  font-size: 21.6cqi;
+  line-height: 0.78;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  font-kerning: normal;
+}
+.name-mark-word {
+  display: block;
+  /* Optical alignment: the H's side bearing would otherwise push it right of the column edge. */
+  margin-inline-start: -0.045em;
+}
+.name-mark-letter {
+  --p: 0;
+  display: inline-block;
+  font-variation-settings: "wdth" calc(125 - 55 * var(--p));
+  font-weight: calc(820 - 470 * var(--p));
+  transition:
+    font-variation-settings 320ms var(--ease-out),
+    font-weight 320ms var(--ease-out);
+  transform-origin: 50% 100%;
+  animation: letter-open 900ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 55ms);
+}
+
+/* Header scroll indicator, driven by the scroll position with no script. */
+.scroll-progress {
+  display: none;
+}
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    display: block;
+    transform-origin: 0 50%;
+    animation: scroll-grow linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+@keyframes scroll-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Theme switch: the new theme opens as a circle from the toggle button. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  animation: theme-reveal var(--dur-slow) var(--ease-in-out);
+}
+@keyframes theme-reveal {
+  from { clip-path: circle(0 at var(--vt-x, 100%) var(--vt-y, 0)); }
+  to { clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 100%) var(--vt-y, 0)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .skeleton {
+    animation: none;
+  }
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
