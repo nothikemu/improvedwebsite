@@ -1,111 +1,83 @@
 /**
- * Personal content for the site. Edit this file to change what the page says;
- * components read from here and contain no personal copy of their own.
+ * Everything personal on the site lives in this file. Components read from it
+ * and contain no personal copy of their own.
+ *
+ * Anything marked PLACEHOLDER is a slot the original layout fills that Hikemu
+ * hasn't provided yet. Placeholders render as clearly labelled stand-ins and
+ * never as made-up details; swap in the real thing whenever it's ready.
  */
 
-export type SocialLink = {
-  /** Shown exactly as written. */
-  label: string;
-  href: string;
-  /** Small secondary text next to the label. */
-  detail: string;
-};
+export type SocialIcon = 'github' | 'x' | 'discord' | 'osu' | 'steam';
 
-export type Interest = {
-  name: string;
-  note: string;
-  /**
-   * Optional live detail under the note, from real data only:
-   * "github-language" shows the most common language across public repos,
-   * "spotify" shows the current track when Discord presence reports one.
-   */
-  live?: "github-language" | "spotify";
+export type SocialLink = {
+  /** Tooltip text. */
+  label: string;
+  icon: SocialIcon;
+  /** `null` renders a disabled, labelled placeholder button. */
+  href: string | null;
 };
 
 export const site = {
-  name: "Hikemu",
-  handle: "nothikemu",
+  /** Shown on the profile card until (or if) live Discord data isn't available. */
+  name: 'Hikemu',
+  handle: 'nothikemu',
 
-  /** Used for <title>, meta description and link previews. */
-  title: "Hikemu (nothikemu)",
-  description:
-    "Hikemu's corner of the internet: code, computers, music, games, robots, and whatever side project is running right now.",
+  /** <title>, meta description and link previews. */
+  title: "hikemu's crib",
+  description: 'welcome 2 my digital playground',
+  keywords: ['hikemu', 'nothikemu', 'retro', 'y2k', 'personal website', 'music'],
+  twitterCreator: '@nothikemu',
 
-  /** Hero statement. Keep it to two or three sentences. */
-  intro:
-    "Hi, I'm Hikemu, usually found online as nothikemu. I like computers more than is probably normal, along with code, music, games, robots, and the odd corners of the internet. This is where I keep what I make and what I'm into.",
+  /**
+   * Discord user ID for the profile card: avatar, banner, avatar decoration,
+   * display name and status all come from Discord through Lanyard. Lanyard only
+   * reports users who have joined its Discord server (discord.gg/lanyard).
+   * Overridable with the DISCORD_ID env var.
+   */
+  discordId: '1338171592882262088',
 
-  /** Short words shown under the intro. */
-  tags: ["programming", "hardware", "robotics", "music", "games", "internet culture"],
+  /**
+   * PLACEHOLDER: Hikemu's Last.fm username for the "Recently Played" window.
+   * Set it here or with the LASTFM_USERNAME env var (plus LASTFM_API_KEY).
+   * Until both are set, the window shows its "No recent tracks found" state.
+   */
+  lastfmUsername: null as string | null,
 
+  /** Status bar of the music window. */
+  musicLibraryLabel: "hikemu's music library",
+
+  /** The "About Me - Notepad" window. */
   about: {
-    lead: "I like figuring out how things work, and then making something slightly strange with whatever I learned.",
-    interests: [
-      {
-        name: "programming",
-        note: "Writing code for fun, then following whatever rabbit hole it opens.",
-        live: "github-language",
-      },
-      {
-        name: "computers",
-        note: "How they work, from the case screws down to the instructions.",
-      },
-      {
-        name: "hardware",
-        note: "The parts you can hold. Taking things apart to see what's inside.",
-      },
-      {
-        name: "robotics",
-        note: "Where code leaves the screen and starts moving things.",
-      },
-      {
-        name: "music",
-        note: "Usually on in the background, whatever else is happening.",
-        live: "spotify",
-      },
-      {
-        name: "games",
-        note: "Playing them, and wondering how they were put together.",
-      },
-      {
-        name: "internet culture",
-        note: "Small websites, old forums, and the weirder corners of the web.",
-      },
-      {
-        name: "experimental software",
-        note: "Projects that start with “what if” and don't need a better reason.",
-      },
-    ] satisfies Interest[],
+    text: "Hi, I'm Hikemu, usually found online as nothikemu. I like computers more than is probably normal, along with code, music, games, robots, and the odd corners of the internet. This is where I keep what I make and what I'm into.",
+    interests:
+      'programming, computers, hardware, robotics, music, games, internet culture, and experimental software.',
   },
 
-  /**
-   * Social links, in display order. Labels are shown exactly as written.
-   * The Discord link uses Discord's own profile route, which opens the profile
-   * for anyone signed in to Discord. Swap it for a server invite if you prefer.
-   */
+  /** Icon buttons under the name, in display order. */
   socials: [
-    { label: "github", href: "https://github.com/nothikemu", detail: "nothikemu" },
-    { label: "x", href: "https://x.com/nothikemu", detail: "@nothikemu" },
-    { label: "twitter", href: "https://twitter.com/nothikemu", detail: "@nothikemu" },
-    {
-      label: "discord",
-      href: "https://discord.com/users/1338171592882262088",
-      detail: "opens in Discord",
+    { label: 'GitHub', icon: 'github', href: 'https://github.com/nothikemu' },
+    { label: 'X', icon: 'x', href: 'https://x.com/nothikemu' },
+    { label: 'Discord', icon: 'discord', href: 'https://discord.com/users/1338171592882262088' },
+    // PLACEHOLDER: the original links an osu! profile here. Add Hikemu's, or delete the entry.
+    { label: 'osu!', icon: 'osu', href: null },
+    // PLACEHOLDER: the original links a Steam profile here. Add Hikemu's, or delete the entry.
+    { label: 'Steam', icon: 'steam', href: null },
+  ] satisfies SocialLink[] as SocialLink[],
+
+  images: {
+    /**
+     * PLACEHOLDER: banner shown when the Discord profile has no banner of its own.
+     * Replace the file (any image; it's cropped to the card's width) or point
+     * this at a new one in /public.
+     */
+    bannerFallback: '/placeholders/banner.svg',
+    /**
+     * PLACEHOLDER: the character art that sits in the profile card's bottom-right
+     * corner. Use a transparent PNG at a 7:9 aspect ratio (the original was 420x540).
+     */
+    character: {
+      src: '/placeholders/character.svg',
+      alt: 'Character art placeholder',
     },
-  ] satisfies SocialLink[],
-
-  /** Discord user ID used for live presence through Lanyard. */
-  discordId: "1338171592882262088",
-
-  /** Public repository for this site. Used for the footer source and build links. */
-  sourceRepo: "https://github.com/nothikemu/improvedwebsite",
-
-  signoff: "Thanks for scrolling all the way down.",
-
-  /**
-   * Optional webring. Leave as null until you've joined one; the footer only
-   * renders it when all three links are set.
-   * Example: { name: "some ring", prev: "https://…", home: "https://…", next: "https://…" }
-   */
-  webring: null as null | { name: string; prev: string; home: string; next: string },
-} as const;
+  },
+};

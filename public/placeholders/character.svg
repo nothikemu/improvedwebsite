@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="540" viewBox="0 0 420 540">
+  <!-- PLACEHOLDER character art for the profile card's bottom-right corner.
+       Replace with a transparent PNG at 7:9 (e.g. 420x540) and update site.images.character. -->
+  <defs>
+    <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bcd6ec" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#9cc0e0" stop-opacity="0.75"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#7ea6c9" stroke-width="4" stroke-dasharray="14 10" fill="url(#fill)">
+    <circle cx="262" cy="292" r="68"/>
+    <path d="M128 540 C 130 445 182 386 262 386 C 342 386 394 445 396 540 Z"/>
+  </g>
+  <text x="262" y="476" text-anchor="middle" font-family="Segoe UI, Noto Sans, sans-serif" font-size="24" font-weight="600" fill="#4f7aa0" letter-spacing="1">CHARACTER ART</text>
+  <text x="262" y="506" text-anchor="middle" font-family="Segoe UI, Noto Sans, sans-serif" font-size="24" font-weight="600" fill="#4f7aa0" letter-spacing="1">PLACEHOLDER</text>
+</svg>

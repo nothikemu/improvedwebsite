@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="200" viewBox="0 0 760 200">
+  <!-- PLACEHOLDER banner: shown only when the Discord profile has no banner. Replace this file or set site.images.bannerFallback. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfe6f7"/>
+      <stop offset="1" stop-color="#eef6fc"/>
+    </linearGradient>
+    <pattern id="stripes" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="16" fill="#ffffff" opacity="0.35"/>
+    </pattern>
+  </defs>
+  <rect width="760" height="200" fill="url(#sky)"/>
+  <rect width="760" height="200" fill="url(#stripes)"/>
+  <rect x="5" y="5" width="750" height="190" fill="none" stroke="#8fb4d4" stroke-width="3" stroke-dasharray="10 8"/>
+  <text x="730" y="96" text-anchor="end" font-family="Segoe UI, Noto Sans, sans-serif" font-size="26" font-weight="600" fill="#5f87a8" letter-spacing="1.5">BANNER PLACEHOLDER</text>
+</svg>

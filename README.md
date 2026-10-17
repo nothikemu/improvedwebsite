@@ -1,8 +1,10 @@
-# nothikemu
+# hikemu's crib
 
-Hikemu's personal site: an introduction, live Discord presence, projects pulled from GitHub, contact links and a guestbook, on one page.
+Hikemu's personal site: a Windows 7 Aero desktop of four windows, namely a Discord profile card, a guestbook, a Last.fm "Windows Media Player" and an "About Me" notepad.
 
-Built with Next.js 16 (App Router, Cache Components), React 19, TypeScript and Tailwind CSS 4. There are no runtime dependencies beyond those three packages.
+It's a rebrand of akryst.moe, built from that site's published MIT-licensed source ([AeroBio](https://github.com/Akryst/Aerobio)). Layout, styles, animations and behavior match the original; all of Akryst's personal content and artwork is replaced with Hikemu's details or labelled placeholders. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Built with Next.js 16, React 19, Tailwind CSS 3, [7.css](https://github.com/khang-nd/7.css) and Framer Motion. Tailwind stays on v3 deliberately: v4 changes default border colors, radii and shadows, which would visibly change the windows.
 
 ## Running it
 
@@ -13,90 +15,61 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-| Script              | What it does                     |
-| ------------------- | -------------------------------- |
-| `npm run dev`       | Development server               |
-| `npm run build`     | Production build                 |
-| `npm start`         | Serve the production build       |
-| `npm run lint`      | ESLint                           |
-| `npm run typecheck` | Generate route types, run `tsc`  |
+| Script              | What it does                    |
+| ------------------- | ------------------------------- |
+| `npm run dev`       | Development server              |
+| `npm run build`     | Production build                |
+| `npm start`         | Serve the production build      |
+| `npm run lint`      | ESLint                          |
+| `npm run typecheck` | Generate route types, run `tsc` |
 
-Copy `.env.example` to `.env.local` for any of the optional settings below. Nothing is required.
+Copy `.env.example` to `.env.local` for the optional settings below. Nothing is required to run the site.
 
 ## Editing content
 
-All personal copy lives in two files. Components contain no personal text of their own.
+All personal content lives in **`data/site.ts`**: name and handle, page title and description, the About text and interests, social buttons, Discord ID, Last.fm username, and the placeholder images. Components contain no personal copy.
 
-- **`data/site.ts`**: name, handle, intro, tags, the about section and interests, social links, Discord ID, footer sign-off, and an optional webring.
-- **`data/projects.ts`**: GitHub username, hand-picked featured projects (with optional description overrides and demo links), hidden repositories, whether to include forks, and small labels such as "this site".
+### Placeholders still to fill
 
-When `featured` is empty, the spotlight shows the three most recently pushed repositories and says so ("most recently pushed"). Hand-picked projects are labeled "picked by hand".
+| Slot | Where | What to provide |
+| --- | --- | --- |
+| Character art (profile card, bottom-right) | `public/placeholders/character.svg`, `site.images.character` | A transparent PNG at 7:9, e.g. 420×540 |
+| Banner fallback (shown when the Discord profile has no banner) | `public/placeholders/banner.svg`, `site.images.bannerFallback` | Any image; it's cropped to a ~3.8:1 strip |
+| osu! and Steam buttons | `site.socials` | Profile URLs, or delete the entries. Until then they render as disabled buttons labelled "placeholder" |
+| Last.fm username | `site.lastfmUsername` or `LASTFM_USERNAME` | Plus a `LASTFM_API_KEY` |
+| Favicon, touch icon, link-preview image | `public/favicon.ico`, `public/apple-touch-icon.png`, `public/og-image.png` | Generic "h" tile and title card for now; replace with your own |
 
 ## Integrations
 
-### GitHub projects (works out of the box)
+### Discord profile (Lanyard)
 
-Public repositories for the configured user are fetched on the server and cached with `'use cache'`: successful responses for 30 minutes, and failures for about a minute, so an outage doesn't stick. Rate limits, missing profiles and network failures each get their own message plus a link to the GitHub profile; the rest of the page is unaffected. Forks are hidden by default, and archived repositories are marked.
+The avatar, avatar decoration, banner, display name, username and status dot come live from Discord via [Lanyard](https://github.com/Phineas/lanyard), refreshed every 10 seconds. Lanyard only reports users who have joined [its Discord server](https://discord.gg/lanyard), so join it with the account whose ID is in `data/site.ts` (or `DISCORD_ID`). Until then the card shows the original's fallback avatar ring, a grey status dot, and the name and handle from `data/site.ts`.
 
-Set `GITHUB_TOKEN` in production. Unauthenticated requests share a 60-per-hour limit per server IP, and hosting providers share IPs.
+### Recently played (Last.fm)
 
-### Discord presence and music (needs one step)
+Set `LASTFM_API_KEY` ([get one here](https://www.last.fm/api/account/create)) and `LASTFM_USERNAME`. The 20 most recent scrobbles show with album art, "Playing" for the current track, and refresh every 30 seconds. The key stays on the server. Without it, the window shows "No recent tracks found".
 
-Presence comes from [Lanyard](https://github.com/Phineas/lanyard), which only reports users who have joined its Discord server. Join the server linked in Lanyard's README with the account whose ID is in `data/site.ts`. Until then, the panel shows "Status unavailable: Discord presence isn't being shared" and never claims the user is offline.
+### Guestbook and visit counter
 
-The panel reads one REST snapshot, then keeps a WebSocket open for live updates. If the socket keeps failing, it falls back to polling once a minute. It distinguishes:
+- Anyone can post (nickname up to 20 characters or anonymous, message up to 200), once every 30 minutes per visitor. Likes are one per browser.
+- **Moderation:** set `ADMIN_SECRET`, then visit `/?admin=YOUR_SECRET` once. Delete buttons appear and the status bar shows "🔐 Admin mode". The server checks the secret on every delete; with no `ADMIN_SECRET` set, deleting is disabled.
+- The "visits" badge counts unique visitors.
+- IP addresses are never stored, only salted hashes (`HASH_SALT`).
 
-- **connecting**: skeleton placeholder, with space reserved so nothing shifts
-- **online / idle / do not disturb / offline**: always shown as text, not only as color
-- **unavailable**: either not shared, or the service couldn't be reached; explicitly not "offline"
-- **stale**: when the connection drops and no update arrives for 2.5 minutes, the last known data is dimmed, timers are hidden, and the age of the data is shown
+**Storage:** with `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (or Vercel's `KV_REST_API_URL` / `KV_REST_API_TOKEN`), data lives in Upstash Redis. **Use this on Vercel or any serverless host**, since their filesystems don't persist. Without it, data is kept in `.data/store.json` (or `DATA_DIR`), which suits local development and a long-running server.
 
-The listening row and the "now" line under *music* come from Spotify through the same Lanyard data. They appear only when Discord reports a Spotify track (Spotify connected to Discord, with activity sharing on). Nothing is shown as playing unless Discord says so.
+## Deploying
 
-### Guestbook (local until storage is configured)
+- **Vercel:** import the repo, add the Upstash integration (or the two `UPSTASH_*` variables), and set `ADMIN_SECRET`, `HASH_SALT` and the Last.fm variables.
+- **A server with pm2:** `npm run build && pm2 start ecosystem.config.js`, which serves on port 3000 with the file store.
 
-- **Without storage env vars:** local mode. Entries are saved in the visitor's own browser, and the guestbook says so: "entries stay in this browser only. Nobody else can see them."
-- **With `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`** (or Vercel's `KV_REST_API_URL` / `KV_REST_API_TOKEN`): shared mode through `app/api/guestbook/route.ts`. The newest 200 entries are kept and the latest 50 are shown.
+## Differences from the original, on purpose
 
-Server-side protections: the same validation as the form (name up to 32 characters, message up to 240, at most one link, control and invisible characters stripped); a honeypot field; and a one-entry-per-minute rate limit keyed on a salted hash of the visitor's IP. The raw IP is never stored, and the key expires after 60 seconds. Entries are rendered as plain text. To remove an entry, delete it from the `guestbook:entries` list in the Upstash console.
+Visually and behaviorally the site matches the original. Under the hood a few things changed:
 
-## Design notes
-
-- **Two themes, designed separately.** Dark is "the board": matte black, quartz-white type and a faint perfboard dot grid. Light is "the datasheet": cool quartz paper, ink type and a ruled grid. Both use one ultramarine accent, tuned for contrast in each theme. Status colors are separate from the accent and always paired with a label.
-- **Theme handling.** The theme defaults to dark, follows the OS when nothing is saved, and remembers the toggle in `localStorage`. An inline script in `<head>` applies it before first paint, so there's no flash. Where the browser supports view transitions, switching opens the new theme as a circle from the toggle.
-- **Type.** Archivo (variable, width axis 62–125) for everything readable; Martian Mono for timestamps, counts and labels. Both are self-hosted through `next/font`.
-- **One signature interaction.** The width axis carries the site's motion. The name stretches open on load (a transform, so it never triggers layout), and letters squeeze under a mouse pointer. Clickable names and links widen on hover, and only things that widen are clickable.
-- **Tokens** (colors, radii, motion durations and easing) are CSS custom properties at the top of `app/globals.css`, mapped into Tailwind with `@theme`.
-- **Motion** uses transforms and opacity, except the pointer-driven squeeze. The only looping animations are the loading skeleton and a three-beat status pulse. `prefers-reduced-motion` turns all of it off.
-
-Small details: the header dot mirrors Discord status, a hairline under the header tracks scroll position (CSS scroll-driven animation, no script), the footer links to the exact commit the page was built from, and the browser console has a note for anyone who opens it.
-
-## Project structure
-
-```
-app/
-  layout.tsx            fonts, metadata, pre-paint theme script
-  page.tsx              composes the sections
-  globals.css           design tokens, base styles, animations
-  api/guestbook/        guestbook API (GET list, POST sign)
-  opengraph-image.tsx   link preview image
-  icon.svg
-components/             header, hero, name mark, presence panel, about,
-                        projects + repository index, contact, guestbook, footer
-lib/
-  github.ts             GitHub fetch + caching
-  projects.ts           featured/auto spotlight, stats
-  lanyard.ts            presence store (REST + WebSocket), helpers
-  guestbook.ts          validation shared by form and API
-  guestbook-store.ts    Upstash REST storage (server-only)
-data/
-  site.ts               personal content
-  projects.ts           project presentation config
-```
-
-## Notes and limitations
-
-- **References.** The five reference sites (boo.kim, assumi.ng, aureal.dev, akryst.moe, hkmu.me) couldn't be reached from the environment this was built in, and none are indexed by search engines. The design follows the written brief rather than direct observation of those sites. A reference pass is a good follow-up once they can be inspected.
-- The project list reads the first 100 repositories (sorted by most recent push).
-- Discord's `discord.com/users/<id>` profile link opens the profile for people signed in to Discord. Swap it in `data/site.ts` for a server invite if you'd rather.
-- No webring is configured. The footer renders one only after real links are added to `data/site.ts`.
+- **Storage:** Prisma + SQLite is replaced by Upstash Redis or a JSON file, so the guestbook works on serverless hosts. The endpoints, limits and responses are the same.
+- **Security:** the Last.fm key is no longer bundled into client JavaScript. The admin secret has no hard-coded fallback and is sent in a header instead of the URL. Raw IPs aren't stored.
+- **Locale:** the guestbook's Spanish relative times and dialogs ("hace 2 días") are now English ("2 days ago"), to match Hikemu's site. The clock is still 24-hour.
+- **Markup:** social links are `<a role="button">` instead of a `<button>` nested inside an `<a>` (invalid HTML). They're styled to render the same, idle and on hover.
+- **Profile fallback:** if Discord data never arrives, the card shows the configured name and handle instead of a blank name.
+- The original loaded the Inter font without ever applying it, so it's not loaded here; text renders in 7.css's Segoe UI stack exactly as before.

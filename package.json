@@ -1,5 +1,5 @@
 {
-  "name": "nothikemu-site",
+  "name": "hikemu",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,18 +10,21 @@
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "7.css": "0.21.1",
+    "framer-motion": "^11.18.2",
     "next": "16.4.1",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
-    "@tailwindcss/turbopack": "^4",
-    "@types/node": "^20",
+    "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.23",
     "eslint": "^9",
     "eslint-config-next": "16.4.1",
-    "tailwindcss": "^4",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5"
   }
 }
